@@ -4,7 +4,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests Passing](https://img.shields.io/badge/tests-48%20passed-brightgreen.svg)]()
+[![Tests Passing](https://img.shields.io/badge/tests-90%20passed-brightgreen.svg)]()
 [![Standard Library](https://img.shields.io/badge/dependencies-standard--library%20only-success.svg)]()
 
 ---
@@ -23,6 +23,32 @@ Built exclusively using Python's standard `socket` library, CFTP avoids high-lev
 
 ---
 
+## Browser workspace
+
+Start the clean, local file workspace and a CFTP server with one command:
+
+```powershell
+python -m cftp.web --demo
+```
+
+Open **http://127.0.0.1:8787** to upload, search, inspect checksums, download,
+and view transfer activity. Drag-and-drop and multiple-file uploads are supported.
+Files transfer through the real CFTP TCP client; no frontend build or npm install
+is needed to run it. Stop the foreground server with Ctrl+C.
+
+See [Web workspace guide](docs/web-workspace.md) for manual testing, connection
+settings, alternative ports, and the automated browser suite.
+
+To receive broadcasts in a second client:
+
+```powershell
+python -m cftp.client --download-dir downloads/client-2 listen
+```
+
+Use a file's broadcast icon in the workspace to deliver it to every connected
+receiving client. See [Broadcast guide](docs/broadcasts.md) for verified delivery
+and [Research](research/README.md) for the FTP comparison and reproducible benchmarks.
+
 ## 2. Protocol Syntax & Specification (`CFTP/1.0`)
 
 CFTP control messages are UTF-8 text strings terminated by CRLF (`\r\n`).
@@ -34,6 +60,9 @@ CFTP control messages are UTF-8 text strings terminated by CRLF (`\r\n`).
 | **`LIST`** | `CFTP/1.0 LIST` | Requests remote directory catalog with file sizes, timestamps, and SHA-256 hashes. |
 | **`GET`** | `CFTP/1.0 GET <filename>` | Downloads `<filename>` using length-prefixed streaming with SHA-256 verification. |
 | **`PUT`** | `CFTP/1.0 PUT <filename> SIZE=<n> CHECKSUM=<hash>` | Initiates two-phase file upload with server readiness acknowledgment. |
+| **`BROADCAST`** | `CFTP/1.0 BROADCAST <filename>` | Starts verified delivery to every connected receiving client. |
+| **`PEERS`** | `CFTP/1.0 PEERS` | Lists connected clients and reception capability. |
+| **`BSTATUS`** | `CFTP/1.0 BSTATUS ID=<id>` | Reports verified and failed broadcast recipients. |
 | **`QUIT`** | `CFTP/1.0 QUIT` | Gracefully closes the session with a 4-way TCP FIN handshake. |
 
 ### 2.2 Status Code Taxonomy
@@ -41,6 +70,7 @@ CFTP control messages are UTF-8 text strings terminated by CRLF (`\r\n`).
 | Code | Reason Phrase | Meaning |
 |---|---|---|
 | **200** | `OK` | Request succeeded / transfer completed / ready for payload. |
+| **210** | `BROADCAST` | Negotiated file event followed by its exact-length payload. |
 | **400** | `BAD_REQUEST` | Syntax error, unclosed quotes, or missing parameters. |
 | **403** | `ACCESS_DENIED` | Path traversal attempted (`../`), illegal character, or reserved device name. |
 | **404** | `NOT_FOUND` | Target file does not exist on remote storage. |
@@ -65,10 +95,11 @@ CN/
 |   |-- server.py                 # Multi-threaded TCP server implementation
 |   |-- client.py                 # CFTP client with interactive REPL and CLI modes
 |
-|-- tests/                        # Automated unit and integration tests (48 tests)
+|-- tests/                        # Automated unit and integration tests (90 tests)
 |   |-- test_protocol.py          # Command/response parsing, quoting, errors
 |   |-- test_framing.py           # Fragmented packets, coalesced buffers, split delimiters
 |   |-- test_integrity.py         # SHA-256 hashing and constant-time verification
+|   |-- test_regressions.py       # Transfer integrity, framing limits, concurrent downloads, lifecycle
 |   |-- test_storage.py           # Path traversal, reserved device stems, atomic commits
 |   |-- test_integration.py       # Full loopback TCP client-server test suite
 |
@@ -166,8 +197,8 @@ python -m unittest discover -s tests -v
 ```
 
 **Observed Execution Summary:**
-- **48 test cases** covering framing, protocol parsing, integrity, storage containment, and live TCP loopback interaction.
-- **100% Pass Rate** in ~0.40 seconds.
+- **90 test cases** covering framing, protocol parsing, integrity, storage containment, and live TCP loopback interaction.
+- **100% Pass Rate** in ~4.3 seconds on the locally available Python 3.9.5 runtime (Windows). The documented Python 3.10+ runtime was not available for this validation.
 
 ---
 
@@ -207,7 +238,7 @@ python scripts/benchmark.py --standalone
    - **Orderly Termination:** `[FIN, ACK]` handshakes.
    - Right click any packet -> **Follow** -> **TCP Stream** to view the reconstructed exchange.
 
-Refer to [`docs/wireshark-analysis.md`](file:///e:/Code/CN/docs/wireshark-analysis.md) for full screenshots, filter recipes, and stream dissection notes.
+Refer to [`docs/wireshark-analysis.md`](docs/wireshark-analysis.md) for full screenshots, filter recipes, and stream dissection notes.
 
 ---
 
@@ -221,8 +252,8 @@ Refer to [`docs/wireshark-analysis.md`](file:///e:/Code/CN/docs/wireshark-analys
 
 ## 9. Academic Deliverables Index
 
-- [Protocol Specification (RFC-Style)](file:///e:/Code/CN/docs/protocol-specification.md)
-- [System Architecture & Data Flow](file:///e:/Code/CN/docs/architecture.md)
-- [Wireshark Analysis & Capture Workflow](file:///e:/Code/CN/docs/wireshark-analysis.md)
-- [Automated Testing & Verification Report](file:///e:/Code/CN/docs/testing-report.md)
-- [Demonstration & Viva Presentation Guide](file:///e:/Code/CN/docs/demonstration-guide.md)
+- [Protocol Specification (RFC-Style)](docs/protocol-specification.md)
+- [System Architecture & Data Flow](docs/architecture.md)
+- [Wireshark Analysis & Capture Workflow](docs/wireshark-analysis.md)
+- [Automated Testing & Verification Report](docs/testing-report.md)
+- [Demonstration & Viva Presentation Guide](docs/demonstration-guide.md)

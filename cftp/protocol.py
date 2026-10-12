@@ -1,6 +1,7 @@
 """CFTP/1.0 Protocol specifications, request/response models, and TCP framing."""
 
 import shlex
+import os
 import socket
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Optional, Tuple, Union
@@ -113,7 +114,9 @@ class Request:
             elif token.startswith("'") and token.endswith("'") and len(token) >= 2:
                 token = token[1:-1]
 
-            if "=" in token:
+            if argument is None and command in ("GET", "PUT", "BROADCAST"):
+                argument = token
+            elif "=" in token:
                 key, val = token.split("=", 1)
                 key = key.strip().upper()
                 val = val.strip()
@@ -242,6 +245,9 @@ class FramedSocket:
             # Check for newline in currently buffered bytes
             newline_idx = self._buffer.find(b"\n")
             if newline_idx != -1:
+                line_length = newline_idx - (1 if self._buffer[newline_idx - 1:newline_idx] == b"\r" else 0)
+                if line_length > self.max_line_length:
+                    raise FramingError("Control message exceeded maximum line limit.")
                 # Delimiter found: extract line
                 raw_line = bytes(self._buffer[:newline_idx])
                 # Remove extracted line and '\n' from internal buffer
@@ -257,7 +263,7 @@ class FramedSocket:
                     raise FramingError(f"Control line contains invalid UTF-8 bytes: {err}") from err
 
             # Check if buffer has grown beyond maximum allowed control message size
-            if len(self._buffer) > self.max_line_length:
+            if len(self._buffer) > self.max_line_length + (1 if self._buffer.endswith(b"\r") else 0):
                 raise FramingError(
                     f"Control message exceeded maximum line limit of {self.max_line_length} bytes."
                 )
@@ -410,6 +416,21 @@ class FramedSocket:
             raise FramingError(f"Negative byte count requested: {n_bytes}")
 
         bytes_sent = 0
+        # Python uses OS sendfile where supported and a bounded fallback on
+        # Windows. Hashing transfers continue through the regular chunk loop.
+        if n_bytes and hasher is None and progress_cb is None and hasattr(os, "sendfile"):
+            try:
+                src_file.fileno()
+            except (AttributeError, OSError, ValueError):
+                pass
+            else:
+                try:
+                    count = self.sock.sendfile(src_file, offset=src_file.tell(), count=n_bytes)
+                except OSError as err:
+                    raise ConnectionClosedError(f"Socket sendfile failed: {err}") from err
+                if count != n_bytes:
+                    raise FramingError(f"Source file ended prematurely: expected {n_bytes}, sent {count}")
+                return count
         while bytes_sent < n_bytes:
             remaining = n_bytes - bytes_sent
             to_read = min(self.buffer_size, remaining)

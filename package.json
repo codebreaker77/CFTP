@@ -1,0 +1,14 @@
+{
+  "name": "cftp-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser tests for the dependency-free CFTP web workspace",
+  "scripts": {
+    "start": "python -m cftp.web --demo",
+    "test:ui": "playwright test",
+    "test:ui:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0"
+  }
+}

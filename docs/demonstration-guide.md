@@ -139,7 +139,7 @@ Demonstrate how the protocol prevents malicious behavior:
 ### Step 7: Run Automated Tests & Benchmarks (2 Minutes)
 Demonstrate code quality to the examiners:
 
-1. **Run 48 Automated Tests:**
+1. **Run 90 Automated Tests:**
    ```powershell
    python -m unittest discover -s tests -v
    ```

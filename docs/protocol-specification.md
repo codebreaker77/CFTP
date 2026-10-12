@@ -9,6 +9,10 @@
 
 ## 1. Protocol Architecture & Overview
 
+This implementation also supports negotiated broadcast reception, recipient ACKs,
+heartbeats, and job status commands. See the [broadcast extension](broadcasts.md)
+for frame boundaries, compatibility behavior, and delivery semantics.
+
 The **Custom File Transfer Protocol (CFTP/1.0)** is an application-layer client-server protocol designed to provide reliable, framed file transfer and remote directory inspection directly over a raw TCP byte stream.
 
 Unlike higher-level transfer systems that rely on HTTP, FTP, or remote procedure calls, CFTP specifies its own syntax, request-response negotiation, stream framing boundaries, and end-to-end cryptographic integrity verification.

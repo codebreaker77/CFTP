@@ -59,6 +59,7 @@ class TestCFTPIntegration(unittest.TestCase):
             host="127.0.0.1",
             port=self.server_port,
             download_dir=self.client_dir.name,
+            receive_broadcasts=False,  # These tests also exercise the raw framed stream.
         )
         self.client.connect()
 

@@ -3,12 +3,14 @@
 import os
 import re
 import threading
+from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from cftp.config import Config
 from cftp.integrity import calculate_file_sha256
+from cftp.integrity import StreamingHasher
 
 # Reserved device names in Windows filesystems
 WINDOWS_RESERVED_NAMES = {
@@ -37,10 +39,40 @@ class StorageManager:
     """
 
     def __init__(self, root_dir: Union[str, Path], max_file_size: int = Config.MAX_FILE_SIZE) -> None:
-        self.root_dir = Path(root_dir).resolve()
+        self.root_dir = Path(root_dir).absolute().resolve()
         self.max_file_size = max_file_size
         self._lock = threading.RLock()
+        self._checksum_cache = OrderedDict()
         self.root_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _fingerprint(stat):
+        return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+
+    def checksum_for_file(self, path, source):
+        """Cache hashes by descriptor metadata; replaced or edited files miss the cache."""
+        stat = os.fstat(source.fileno())
+        key = (str(path), self._fingerprint(stat))
+        with self._lock:
+            cached = self._checksum_cache.get(key)
+            if cached is not None:
+                self._checksum_cache.move_to_end(key)
+                return stat.st_size, cached
+        source.seek(0)
+        hasher = StreamingHasher()
+        while chunk := source.read(Config.BUFFER_SIZE):
+            hasher.update(chunk)
+        source.seek(0)
+        if self._fingerprint(stat) != self._fingerprint(os.fstat(source.fileno())):
+            raise OSError("File changed while its checksum was being calculated")
+        self.remember_checksum(path, stat, hasher.hexdigest())
+        return hasher.bytes_processed, hasher.hexdigest()
+
+    def remember_checksum(self, path, stat, checksum):
+        with self._lock:
+            self._checksum_cache[(str(path), self._fingerprint(stat))] = checksum
+            while len(self._checksum_cache) > 512:
+                self._checksum_cache.popitem(last=False)
 
     @staticmethod
     def validate_filename(filename: str) -> str:
@@ -75,7 +107,11 @@ class StorageManager:
             raise StorageSecurityError(f"Path traversal detected in filename: '{clean_name}'")
 
         # Check Windows reserved base stems
-        base_stem = Path(clean_name).stem.upper()
+        if clean_name.endswith("."):
+            raise StorageSecurityError("Filenames cannot end with a dot.")
+        if clean_name.endswith(".cftp_part"):
+            raise StorageSecurityError("The .cftp_part suffix is reserved for temporary transfers.")
+        base_stem = clean_name.split(".", 1)[0].rstrip(" ").upper()
         if base_stem in WINDOWS_RESERVED_NAMES:
             raise StorageSecurityError(f"Filename '{clean_name}' conflicts with OS reserved device name '{base_stem}'")
 
@@ -121,8 +157,9 @@ class StorageManager:
             if not path.is_file():
                 return None
 
-            stat = path.stat()
-            sha256 = calculate_file_sha256(path)
+            with path.open("rb") as source:
+                stat = os.fstat(source.fileno())
+                _, sha256 = self.checksum_for_file(path, source)
             mod_dt = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat()
             return {
                 "name": path.name,
@@ -137,10 +174,11 @@ class StorageManager:
             results: List[Dict[str, Union[str, int]]] = []
             for entry in sorted(self.root_dir.iterdir()):
                 # Ignore temporary partial transfer files and directories
-                if entry.is_file() and not entry.name.endswith(".cftp_part"):
+                if entry.is_file() and not entry.is_symlink() and not entry.name.endswith(".cftp_part"):
                     try:
-                        stat = entry.stat()
-                        sha256 = calculate_file_sha256(entry)
+                        with entry.open("rb") as source:
+                            stat = os.fstat(source.fileno())
+                            _, sha256 = self.checksum_for_file(entry, source)
                         mod_dt = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat()
                         results.append({
                             "name": entry.name,
@@ -159,7 +197,7 @@ class StorageManager:
         temp_name = f"{safe_path.name}.{os.getpid()}_{threading.get_ident()}.cftp_part"
         return self.root_dir / temp_name
 
-    def commit_temp_file(self, temp_path: Path, target_filename: str) -> Path:
+    def commit_temp_file(self, temp_path: Path, target_filename: str, checksum=None) -> Path:
         """Atomically rename a verified temporary file to the final target filename."""
         with self._lock:
             target_path = self.resolve_safe_path(target_filename)
@@ -169,6 +207,8 @@ class StorageManager:
 
             # Atomic replacement
             os.replace(temp_resolved, target_path)
+            if checksum is not None:
+                self.remember_checksum(target_path, target_path.stat(), checksum)
             return target_path
 
     def cleanup_temp_file(self, temp_path: Path) -> None:

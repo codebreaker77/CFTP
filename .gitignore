@@ -14,8 +14,13 @@ ENV/
 .coverage
 htmlcov/
 .pytest_cache/
+node_modules/
+test-results/
+playwright-report/
+.web-run/
 
 # CFTP Runtime Directories
+server_storage/
 uploads/*
 !uploads/README.md
 downloads/*

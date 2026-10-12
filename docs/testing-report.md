@@ -2,30 +2,41 @@
 
 **Project:** Innovative Approach to Designing and Analyzing a Custom Application Layer File Transfer Protocol over TCP  
 **Document:** Test Execution Log, Quality Assurance Gate, and Performance Benchmark  
-**Date of Execution:** 2026-10-10  
+**Date of Execution:** 2026-10-13\
 **Test Framework:** Python Standard Library `unittest`  
-**Python Runtime:** Python 3.14.6  
-**Operating System:** Windows 11 / x86_64  
+**Python Runtime:** Python 3.9.5 (locally available interpreter; Python 3.10+ not verified in this run)\
+**Operating System:** Windows / x86_64\
 
 ---
 
 ## 1. Executive Summary
 
-A comprehensive automated test suite consisting of **48 test cases** was designed, implemented, and executed across five testing modules:
+A comprehensive automated test suite consisting of **90 test cases** was designed, implemented, and executed across nine testing modules:
 - `test_protocol.py`: Protocol syntax, parsing, quoting, and status codes.
 - `test_framing.py`: TCP stream framing, fragmented packets, coalesced reads, split delimiters, and buffering.
 - `test_integrity.py`: SHA-256 calculation, bounded streaming hashing, and cryptographic verification.
 - `test_storage.py`: Filesystem containment, path traversal attacks, Windows reserved device names, and atomic staging.
 - `test_integration.py`: Live loopback TCP socket client-server integration across commands, concurrent sessions, and abrupt disconnections.
 
+- `test_regressions.py`: Terminated oversized lines, exact-limit split delimiters, filenames containing equals signs, device names with multiple extensions, checksum validation, interrupted downloads, concurrent staging, and bounded server lifecycle.
+
+- `test_web.py`: Local HTTP-to-CFTP integration, byte-identical binary and empty transfers, connection settings, size limits, missing files, and request origin checks.
+
+Browser verification: **5 Playwright tests passed**, covering the desktop and mobile workflows. See [Web workspace guide](web-workspace.md).
+
+- `test_broadcast.py`: Delivery to all connected receivers, corrupt or disconnected recipients, heartbeat continuity, concurrent operations, and parallel fan-out.
+- `test_optimizations.py`: Digest cache hits and invalidation after edits or verified replacement.
+
 ### Summary Metrics:
-- **Total Tests Executed:** 48
-- **Tests Passed:** 48 (100%)
+- **Total Tests Executed:** 90
+- **Tests Passed:** 90 (100%)
 - **Failures:** 0
 - **Errors:** 0
-- **Execution Time:** ~0.40 seconds
+- **Execution Time:** ~4.3 seconds
 
 ---
+
+Current performance experiments and raw samples are in [performance research](../research/performance.md). The earlier benchmark section below is historical and is not the FTP comparison.
 
 ## 2. Detailed Test Results by Module
 

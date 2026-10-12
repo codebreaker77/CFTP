@@ -359,7 +359,7 @@ def run_e2e_verification() -> bool:
 
             # Check server storage directory
             committed_file = server_dir / target_filename
-            temp_files = list(server_dir.glob(".cftp_tmp_*"))
+            temp_files = list(server_dir.glob("*.cftp_part"))
 
             if committed_file.exists():
                 log("FAIL: Interrupted file was committed to server storage!")
@@ -371,7 +371,7 @@ def run_e2e_verification() -> bool:
                 log(f"FAIL: Temporary staging files left behind: {[f.name for f in temp_files]}")
                 all_passed = False
             else:
-                log("PASS: All temporary staging files (.cftp_tmp_*) cleanly purged by server.")
+                log("PASS: All temporary staging files (*.cftp_part) cleanly purged by server.")
         except Exception as e:
             log(f"FAIL: Interrupted transfer test raised exception: {e}")
             all_passed = False

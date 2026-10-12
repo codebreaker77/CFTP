@@ -10,7 +10,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 
 Write-Host "==========================================================" -ForegroundColor Green
-Write-Host "  Launching CFTP/1.0 Client connecting to $HostAddress:$Port" -ForegroundColor Green
+Write-Host "  Launching CFTP/1.0 Client connecting to ${HostAddress}:$Port" -ForegroundColor Green
 Write-Host "  Download Directory: $DownloadDir" -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Green
 

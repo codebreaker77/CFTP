@@ -2,10 +2,16 @@
 
 import hashlib
 import hmac
+import re
 from pathlib import Path
 from typing import Union
 
 from cftp.config import Config
+
+
+def is_valid_sha256(value: str) -> bool:
+    """Return whether a value is a 64-character hexadecimal SHA-256 digest."""
+    return isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{64}", value) is not None
 
 
 class StreamingHasher:

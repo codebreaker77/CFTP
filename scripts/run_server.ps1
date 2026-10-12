@@ -11,7 +11,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "  Starting CFTP/1.0 Server on $HostAddress:$Port" -ForegroundColor Cyan
+Write-Host "  Starting CFTP/1.0 Server on ${HostAddress}:$Port" -ForegroundColor Cyan
 Write-Host "  Storage Directory: $StorageDir" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 

@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f8f4" />
+    <title>CFTP — File workspace</title>
+    <meta
+      name="description"
+      content="A quiet workspace for reliable file transfers. Browse, upload, and download through CFTP."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/atlas.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to workspace</a>
+    <svg
+      class="svg-library"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M5 7h14m-4-4 4 4-4 4M19 17H5m4-4-4 4 4 4" />
+      </symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24">
+        <path
+          d="M3 7V5a1 1 0 0 1 1-1h5l3 3h8a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"
+        />
+      </symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M12 7v5l3 2" />
+      </symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24">
+        <path d="M4 7h16M4 17h16" />
+        <circle cx="8" cy="7" r="2" />
+        <circle cx="16" cy="17" r="2" />
+      </symbol>
+      <symbol id="i-help" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01" />
+      </symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24">
+        <path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5" />
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5" />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6.5" />
+        <path d="m16 16 4.5 4.5" />
+      </symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24">
+        <path
+          d="M20 7v5h-5M4 17v-5h5M6.5 6a8 8 0 0 1 13 3M4.5 15a8 8 0 0 0 13 3"
+        />
+      </symbol>
+      <symbol id="i-file" viewBox="0 0 24 24">
+        <path d="M14 3H5v18h14V8Zm0 0v5h5M8 13h8M8 17h5" />
+      </symbol>
+      <symbol id="i-check" viewBox="0 0 24 24">
+        <path d="m5 12 4 4L19 6" />
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z" />
+        <path d="m8 12 3 3 5-6" />
+      </symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24">
+        <path d="m9 5 7 7-7 7" />
+      </symbol>
+      <symbol id="i-x" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M6 18 18 6" />
+      </symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24">
+        <rect x="8" y="8" width="12" height="13" rx="2" />
+        <path d="M16 8V3H3v13h5" />
+      </symbol>
+      <symbol id="i-link" viewBox="0 0 24 24">
+        <path
+          d="m9 15 6-6M8 17l-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2-1 1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0"
+          transform="translate(1 0)"
+        />
+      </symbol>
+      <symbol id="i-broadcast" viewBox="0 0 24 24">
+        <circle cx="12" cy="11" r="2" />
+        <path
+          d="M12 13v8m-4-2h8M7 6a7 7 0 0 0 0 10m10-10a7 7 0 0 1 0 10M4 3a11 11 0 0 0 0 16M20 3a11 11 0 0 1 0 16"
+        />
+      </symbol>
+    </svg>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="CFTP home"
+          ><span class="brand-mark"
+            ><svg><use href="#i-arrow" /></svg></span
+          ><span
+            >CFTP<span class="brand-subtitle">FILE WORKSPACE</span></span
+          ></a
+        >
+        <div class="nav-label">WORKSPACE</div>
+        <nav aria-label="Workspace">
+          <button
+            class="nav-item active"
+            id="nav-files"
+            data-view="files"
+            aria-current="page"
+          >
+            <svg><use href="#i-folder" /></svg>Files<span
+              class="nav-count"
+              id="nav-count"
+              >0</span
+            >
+          </button>
+          <button class="nav-item" id="nav-broadcasts" data-view="broadcasts">
+            <svg><use href="#i-broadcast" /></svg>Broadcasts<span
+              class="nav-count"
+              id="broadcast-nav-count"
+              >0</span
+            >
+          </button>
+          <button class="nav-item" id="nav-activity" data-view="activity">
+            <svg><use href="#i-clock" /></svg>Transfer activity<span
+              class="activity-dot"
+              id="activity-dot"
+              hidden
+            ></span>
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="server-card">
+            <span class="server-dot" id="sidebar-dot"></span>
+            <div>
+              <strong id="sidebar-status">Not connected</strong
+              ><span id="sidebar-address">127.0.0.1:9000</span>
+            </div>
+            <button
+              class="icon-button"
+              id="server-settings"
+              aria-label="Connection settings"
+            >
+              <svg><use href="#i-settings" /></svg>
+            </button>
+          </div>
+          <button class="help-button" id="help-button">
+            <svg><use href="#i-help" /></svg>Quick start<span>↗</span>
+          </button>
+          <div class="sidebar-footer">CFTP 1.0 · Local workspace</div>
+        </div>
+      </aside>
+      <div class="workspace">
+        <header class="topbar">
+          <div class="breadcrumb">
+            Workspace<svg><use href="#i-chevron" /></svg
+            ><span id="breadcrumb-current">Files</span>
+          </div>
+          <button class="connection-pill" id="connection-button">
+            <span class="server-dot" id="header-dot"></span
+            ><span id="header-status">Connect a server</span
+            ><svg><use href="#i-chevron" /></svg>
+          </button>
+        </header>
+        <main id="main">
+          <section class="page-heading">
+            <div>
+              <div class="eyebrow" id="page-eyebrow">
+                A CLEAR SPACE FOR YOUR FILES
+              </div>
+              <h1 id="page-title">Files</h1>
+              <p id="page-description">
+                Manage files on your connected server.
+              </p>
+            </div>
+            <div class="heading-actions">
+              <button class="button secondary" id="broadcast-button">
+                <svg><use href="#i-broadcast" /></svg>Broadcast</button
+              ><button class="button primary" id="upload-button">
+                <svg><use href="#i-upload" /></svg>Upload files
+              </button>
+            </div>
+          </section>
+          <div class="inline-error" id="page-error" role="alert" hidden></div>
+          <section id="files-view" aria-label="File workspace">
+            <div class="file-panel">
+              <div class="panel-toolbar">
+                <div class="panel-heading">
+                  <h2>Server files</h2>
+                  <span class="count-badge" id="file-count">0 files</span>
+                </div>
+                <div class="toolbar-actions">
+                  <label class="search-field"
+                    ><svg><use href="#i-search" /></svg
+                    ><input
+                      id="search"
+                      type="search"
+                      placeholder="Search files…"
+                      aria-label="Search files" /></label
+                  ><button
+                    class="icon-button"
+                    id="refresh-button"
+                    aria-label="Refresh files"
+                    title="Refresh files"
+                  >
+                    <svg><use href="#i-refresh" /></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="table-scroll">
+                <table id="files-table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <button id="sort-name">
+                          Name <span id="sort-indicator">↓</span>
+                        </button>
+                      </th>
+                      <th>Size</th>
+                      <th>Modified</th>
+                      <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="file-rows"></tbody>
+                </table>
+              </div>
+              <div class="empty-state" id="empty-state">
+                <div class="empty-art">
+                  <span class="art-orbit"></span>
+                  <div class="art-file back"></div>
+                  <div class="art-file front">
+                    <svg><use href="#i-file" /></svg><span></span><span></span>
+                  </div>
+                  <span class="art-check"
+                    ><svg><use href="#i-check" /></svg
+                  ></span>
+                </div>
+                <h3 id="empty-title">Room for something good.</h3>
+                <p id="empty-description">
+                  Connect a server, then drop your first file here.
+                </p>
+                <button class="button secondary" id="empty-button">
+                  <svg><use href="#i-link" /></svg>Connect a server
+                </button>
+              </div>
+              <footer class="panel-footer">
+                <span id="storage-summary"
+                  >Your workspace is ready when you are.</span
+                ><span
+                  ><svg><use href="#i-shield" /></svg>Checksum verified
+                  transfers</span
+                >
+              </footer>
+            </div>
+            <button class="drop-zone" id="drop-zone">
+              <span class="drop-icon"
+                ><svg><use href="#i-upload" /></svg></span
+              ><span
+                ><strong>Drop files to upload</strong
+                ><span
+                  >Or browse your computer · Up to 100 MB per file</span
+                ></span
+              ><span class="drop-browse"
+                >Browse files<svg><use href="#i-chevron" /></svg
+              ></span>
+            </button>
+            <section class="recent-section">
+              <div class="section-heading">
+                <h2>Recent transfers</h2>
+                <button class="text-button" id="view-activity">
+                  View activity <span>↗</span>
+                </button>
+              </div>
+              <div id="recent-transfers" class="recent-list">
+                <div class="activity-empty">
+                  <span class="quiet-icon"
+                    ><svg><use href="#i-arrow" /></svg></span
+                  >Your next transfer starts the story.
+                </div>
+              </div>
+            </section>
+          </section>
+          <section id="broadcasts-view" hidden aria-label="File broadcasts">
+            <div class="broadcast-summary">
+              <span class="broadcast-summary-icon"
+                ><svg><use href="#i-broadcast" /></svg
+              ></span>
+              <div>
+                <strong>Send one file to every connected client</strong>
+                <p>
+                  Recipients save the file automatically and acknowledge its
+                  checksum.
+                </p>
+              </div>
+              <button class="button primary" id="new-broadcast-button">
+                Broadcast a file
+              </button>
+            </div>
+            <div class="broadcast-grid">
+              <section class="file-panel">
+                <div class="panel-toolbar">
+                  <div class="panel-heading">
+                    <h2>Connected clients</h2>
+                    <span class="count-badge" id="peer-count">0 clients</span>
+                  </div>
+                  <span class="live-label"
+                    ><span class="server-dot online"></span>Live</span
+                  >
+                </div>
+                <div id="peer-list" class="peer-list"></div>
+              </section>
+              <section class="file-panel">
+                <div class="panel-toolbar">
+                  <div class="panel-heading">
+                    <h2>Received files</h2>
+                    <span class="count-badge" id="inbox-count">0 files</span>
+                  </div>
+                </div>
+                <div id="inbox-list" class="inbox-list"></div>
+              </section>
+            </div>
+            <section class="file-panel broadcast-history">
+              <div class="panel-toolbar">
+                <h2>Broadcast history</h2>
+                <span class="session-note">This session</span>
+              </div>
+              <div id="broadcast-jobs" class="broadcast-jobs"></div>
+            </section>
+          </section>
+          <section id="activity-view" hidden aria-label="Transfer activity">
+            <div class="file-panel">
+              <div class="panel-toolbar">
+                <div class="panel-heading">
+                  <h2>Transfer history</h2>
+                  <span class="count-badge" id="activity-count"
+                    >0 transfers</span
+                  >
+                </div>
+                <span class="session-note">This session</span>
+              </div>
+              <div id="activity-list" class="full-activity"></div>
+            </div>
+          </section>
+          <footer class="workspace-footer">
+            <span>Connected workspace · SHA-256 verified transfers</span
+            ><span>CFTP / 1.0</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+    <input id="file-input" type="file" multiple hidden />
+    <dialog id="connection-dialog">
+      <form id="connection-form">
+        <div class="dialog-top">
+          <span class="dialog-icon"
+            ><svg><use href="#i-link" /></svg></span
+          ><button
+            class="icon-button"
+            type="button"
+            data-close="connection-dialog"
+            aria-label="Close connection settings"
+          >
+            <svg><use href="#i-x" /></svg>
+          </button>
+        </div>
+        <h2>Connect to a server</h2>
+        <p>Choose the CFTP server for your workspace.</p>
+        <label class="field-label" for="host-input">Server address</label
+        ><input
+          class="form-input"
+          id="host-input"
+          name="host"
+          value="127.0.0.1"
+          required
+          maxlength="253"
+          autocomplete="off"
+          placeholder="127.0.0.1"
+        /><label class="field-label" for="port-input">Port</label
+        ><input
+          class="form-input"
+          id="port-input"
+          name="port"
+          type="number"
+          min="1"
+          max="65535"
+          value="9000"
+          required
+        />
+        <div
+          class="dialog-error"
+          id="connection-error"
+          role="alert"
+          hidden
+        ></div>
+        <div class="connection-tip">
+          Running locally? Keep the address and port above.
+        </div>
+        <div class="dialog-actions">
+          <button
+            class="button danger-text"
+            type="button"
+            id="disconnect-button"
+            hidden
+          >
+            Disconnect</button
+          ><button class="button primary" type="submit" id="connect-submit">
+            Connect to server<svg><use href="#i-chevron" /></svg>
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="detail-dialog">
+      <div class="dialog-top">
+        <span class="dialog-icon"
+          ><svg><use href="#i-file" /></svg></span
+        ><button
+          class="icon-button"
+          type="button"
+          data-close="detail-dialog"
+          aria-label="Close file details"
+        >
+          <svg><use href="#i-x" /></svg>
+        </button>
+      </div>
+      <h2 id="detail-name"></h2>
+      <p>File details</p>
+      <dl class="detail-list">
+        <div>
+          <dt>File size</dt>
+          <dd id="detail-size"></dd>
+        </div>
+        <div>
+          <dt>Last modified</dt>
+          <dd id="detail-modified"></dd>
+        </div>
+      </dl>
+      <div class="checksum-label">
+        <span>SHA-256 checksum</span
+        ><button class="text-button" id="copy-checksum">
+          <svg><use href="#i-copy" /></svg>Copy
+        </button>
+      </div>
+      <code class="checksum" id="detail-checksum"></code>
+      <div class="dialog-actions">
+        <button class="button primary" id="detail-download">
+          <svg><use href="#i-download" /></svg>Download file
+        </button>
+      </div>
+    </dialog>
+    <dialog id="broadcast-dialog">
+      <form id="broadcast-form">
+        <div class="dialog-top">
+          <span class="dialog-icon"
+            ><svg><use href="#i-broadcast" /></svg></span
+          ><button
+            class="icon-button"
+            type="button"
+            data-close="broadcast-dialog"
+            aria-label="Close broadcast dialog"
+          >
+            <svg><use href="#i-x" /></svg>
+          </button>
+        </div>
+        <h2>Broadcast a file</h2>
+        <p>
+          Send a server file to all connected clients, including this workspace.
+        </p>
+        <label class="field-label" for="broadcast-file-select"
+          >File on server</label
+        ><select id="broadcast-file-select" class="form-input" required>
+          <option value="">Select a file</option>
+        </select>
+        <div class="broadcast-targets">
+          <svg><use href="#i-broadcast" /></svg
+          ><span id="broadcast-target-count">Checking connected clients…</span>
+        </div>
+        <p class="broadcast-note">
+          Clients must stay connected until delivery completes. Existing files
+          with the same name in their download folder are replaced after
+          verification.
+        </p>
+        <div
+          class="dialog-error"
+          id="broadcast-error"
+          role="alert"
+          hidden
+        ></div>
+        <div class="dialog-actions">
+          <button
+            class="button secondary"
+            type="button"
+            data-close="broadcast-dialog"
+          >
+            Cancel</button
+          ><button class="button primary" type="submit" id="broadcast-submit">
+            Broadcast file
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="help-dialog">
+      <div class="dialog-top">
+        <span class="dialog-icon"
+          ><svg><use href="#i-help" /></svg></span
+        ><button
+          class="icon-button"
+          type="button"
+          data-close="help-dialog"
+          aria-label="Close quick start"
+        >
+          <svg><use href="#i-x" /></svg>
+        </button>
+      </div>
+      <h2>Quick start</h2>
+      <p>A quick way to try your workspace.</p>
+      <ol class="help-steps">
+        <li>
+          <strong>Start the local workspace</strong
+          ><span>In the project folder, run:</span
+          ><code>python -m cftp.web --demo</code>
+        </li>
+        <li>
+          <strong>Send something small</strong
+          ><span>Drop a text file here or choose Upload files.</span>
+        </li>
+        <li>
+          <strong>Bring it back</strong
+          ><span
+            >Download it from the file list. Every transfer is checked with
+            SHA-256.</span
+          >
+        </li>
+      </ol>
+      <p class="help-note">
+        Already running a CFTP server? Start with
+        <code>python -m cftp.web</code> and use Connection settings.
+      </p>
+      <p class="help-note">
+        To receive broadcasts in another client, run:<code
+          class="listener-command"
+          >python -m cftp.client --download-dir downloads/client-2 listen</code
+        >Keep it running, then choose Broadcast next to a server file.
+      </p>
+    </dialog>
+    <section
+      class="transfer-toast"
+      id="transfer-toast"
+      aria-live="polite"
+      hidden
+    >
+      <div class="transfer-toast-top">
+        <span class="transfer-icon"
+          ><svg><use href="#i-arrow" /></svg
+        ></span>
+        <div>
+          <strong id="transfer-title">Sending your file</strong
+          ><span id="transfer-filename"></span>
+        </div>
+        <span id="transfer-percent">0%</span>
+      </div>
+      <progress
+        id="transfer-progress"
+        max="100"
+        value="0"
+        aria-label="Transfer progress"
+      ></progress>
+      <div class="transfer-stage" id="transfer-stage">Preparing transfer…</div>
+    </section>
+    <div class="notification" id="notification" role="status" hidden></div>
+  </body>
+</html>

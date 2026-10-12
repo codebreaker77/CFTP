@@ -1,0 +1,221 @@
+{
+  "date": "2026-10-13",
+  "python": "3.9.5",
+  "platform": "Windows-10-10.0.22000-SP0",
+  "transport": "IPv4 loopback, plain TCP, passive FTP, warm filesystem cache",
+  "ftp_server": "pyftpdlib",
+  "client_buffer_bytes": 65536,
+  "methodology": "Persistent sessions; one warmup per operation; alternating protocol order. CFTP includes SHA-256 verification and atomic staging. FTP intervals measure raw transfers; its byte validation is outside timing. This favors FTP and is not a universal network benchmark.",
+  "results": [
+    {
+      "bytes": 1024,
+      "trials": 7,
+      "median_ms": {
+        "cftp_put": 3.882,
+        "ftp_put": 15.596,
+        "cftp_get": 3.442,
+        "ftp_get": 14.483
+      },
+      "samples_ms": {
+        "cftp_put": [
+          4.364,
+          3.831,
+          4.659,
+          3.568,
+          3.882,
+          4.056,
+          3.771
+        ],
+        "ftp_put": [
+          16.066,
+          15.429,
+          2.74,
+          16.226,
+          3.395,
+          15.596,
+          21.195
+        ],
+        "cftp_get": [
+          3.442,
+          2.466,
+          3.649,
+          2.542,
+          3.466,
+          2.369,
+          4.131
+        ],
+        "ftp_get": [
+          14.383,
+          18.463,
+          2.571,
+          17.92,
+          2.569,
+          18.35,
+          14.483
+        ]
+      },
+      "cftp_speedup": {
+        "put": 4.018,
+        "get": 4.208
+      }
+    },
+    {
+      "bytes": 65536,
+      "trials": 7,
+      "median_ms": {
+        "cftp_put": 4.794,
+        "ftp_put": 17.643,
+        "cftp_get": 8.05,
+        "ftp_get": 3.358
+      },
+      "samples_ms": {
+        "cftp_put": [
+          6.14,
+          4.794,
+          3.896,
+          5.67,
+          4.416,
+          5.473,
+          4.365
+        ],
+        "ftp_put": [
+          17.643,
+          18.106,
+          14.778,
+          20.656,
+          13.21,
+          18.057,
+          14.728
+        ],
+        "cftp_get": [
+          10.859,
+          2.928,
+          8.05,
+          3.098,
+          8.766,
+          3.487,
+          9.3
+        ],
+        "ftp_get": [
+          3.335,
+          3.358,
+          14.177,
+          13.203,
+          2.475,
+          16.379,
+          2.542
+        ]
+      },
+      "cftp_speedup": {
+        "put": 3.68,
+        "get": 0.417
+      }
+    },
+    {
+      "bytes": 1048576,
+      "trials": 7,
+      "median_ms": {
+        "cftp_put": 9.647,
+        "ftp_put": 15.47,
+        "cftp_get": 11.286,
+        "ftp_get": 19.804
+      },
+      "samples_ms": {
+        "cftp_put": [
+          9.483,
+          9.286,
+          10.603,
+          10.06,
+          9.647,
+          10.368,
+          8.401
+        ],
+        "ftp_put": [
+          4.748,
+          3.052,
+          15.854,
+          15.005,
+          20.434,
+          15.47,
+          22.93
+        ],
+        "cftp_get": [
+          13.112,
+          8.373,
+          12.365,
+          6.443,
+          12.465,
+          6.171,
+          11.286
+        ],
+        "ftp_get": [
+          19.126,
+          24.403,
+          19.859,
+          19.804,
+          18.406,
+          20.219,
+          3.225
+        ]
+      },
+      "cftp_speedup": {
+        "put": 1.604,
+        "get": 1.755
+      }
+    },
+    {
+      "bytes": 8388608,
+      "trials": 7,
+      "median_ms": {
+        "cftp_put": 48.54,
+        "ftp_put": 26.385,
+        "cftp_get": 32.601,
+        "ftp_get": 24.378
+      },
+      "samples_ms": {
+        "cftp_put": [
+          47.158,
+          50.03,
+          49.606,
+          47.925,
+          44.901,
+          49.199,
+          48.54
+        ],
+        "ftp_put": [
+          37.303,
+          24.587,
+          22.56,
+          35.66,
+          26.998,
+          24.769,
+          26.385
+        ],
+        "cftp_get": [
+          34.806,
+          29.483,
+          33.038,
+          25.974,
+          32.601,
+          26.983,
+          34.928
+        ],
+        "ftp_get": [
+          29.746,
+          21.471,
+          27.08,
+          20.84,
+          28.141,
+          21.579,
+          24.378
+        ]
+      },
+      "cftp_speedup": {
+        "put": 0.544,
+        "get": 0.748
+      }
+    }
+  ],
+  "ftp_server_version": "2.2.0",
+  "purpose": "Exploratory measurement, not a controlled before/after ablation"
+}

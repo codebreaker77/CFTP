@@ -24,7 +24,7 @@ graph TD
 
     subgraph Server Application
         SVR[CFTPServer Acceptor]
-        TH[Worker Threads Pool]
+        TH[Bounded Client Threads]
         SFS[Server FramedSocket Buffer]
         SH[StreamingHasher Server]
         SM[StorageManager & Security Fence]
@@ -66,7 +66,7 @@ graph TD
 
 ### 2.4 Server Core (`cftp/server.py`)
 - **Socket Options:** Initializes TCP socket with `SO_REUSEADDR` to facilitate rapid server restarts without `TIME_WAIT` binding conflicts.
-- **Concurrency Architecture:** Uses multi-threading (`threading.Thread` per accepted client socket). Each thread maintains its own `FramedSocket` instance and isolated state, preventing one slow or malicious client from blocking others.
+- **Concurrency Architecture:** Uses one `threading.Thread` per accepted client, with a default limit of 64 concurrent sessions (`--max-clients`). Each thread maintains its own `FramedSocket` instance. Finished workers are removed; shutdown closes active sockets and waits briefly for workers to finish.
 - **Error Boundaries:** Catches protocol violations, socket drops, and framing errors at per-session boundaries, ensuring the main server accept loop remains resilient and stable.
 
 ### 2.5 Client Core (`cftp/client.py`)
@@ -92,7 +92,7 @@ graph TD
 ### 3.2 File Download (GET)
 1. Client sends: `CFTP/1.0 GET <file>\r\n`.
 2. Server validates filename and checks existence.
-3. Server calculates file size and SHA-256 digest.
+3. Server opens the file once and calculates its byte count and SHA-256 digest from that descriptor. It rewinds the same descriptor for transmission, so an atomic upload replacement cannot change the selected file between hashing and streaming.
 4. Server sends: `CFTP/1.0 200 OK SIZE=<n> CHECKSUM=<hash>\r\n`.
 5. Client opens staging file `.cftp_part` and streams exactly `<n>` bytes from TCP socket while hashing.
 6. Client compares computed digest with server's `CHECKSUM`:

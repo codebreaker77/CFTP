@@ -12,8 +12,17 @@ from cftp.config import Config
 from cftp.protocol import Request, Response, FramedSocket, ProtocolError, FramingError
 from cftp.integrity import calculate_file_sha256, verify_file_sha256, StreamingHasher
 from cftp.storage import StorageManager
-from cftp.server import CFTPServer
-from cftp.client import CFTPClient
+
+
+def __getattr__(name):
+    """Keep CLI modules lazy so ``python -m`` executes each module only once."""
+    from importlib import import_module
+    modules = {"CFTPServer": "cftp.server", "CFTPClient": "cftp.client"}
+    if name not in modules:
+        raise AttributeError(name)
+    value = getattr(import_module(modules[name]), name)
+    globals()[name] = value
+    return value
 
 __all__ = [
     "Config",

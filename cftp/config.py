@@ -20,7 +20,7 @@ class Config:
     DEFAULT_SOCKET_TIMEOUT: float = 30.0
 
     # Framing limits & buffers
-    BUFFER_SIZE: int = 65536  # 64 KB chunk size for payload I/O
+    BUFFER_SIZE: int = 65536  # 64 KB bounded payload I/O chunks
     MAX_CONTROL_LINE_LENGTH: int = 4096  # Max length in bytes for command / response line
 
     # Transfer & security limits
